@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/weatherItemLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:orientation="horizontal"
+    android:weightSum="1"
+    android:layout_margin="8dp">
+
+<!--
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"-->
+
+    <TextView
+        android:id="@+id/messageFromMe"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|left"
+        android:gravity="center_horizontal|left"
+        android:textColor="@android:color/black"
+        android:text="forecast"
+        android:textStyle="bold"
+        android:layout_weight="0.5"/>
+
+    <TextView
+        android:id="@+id/messageFromFriend"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|right"
+        android:gravity="center_horizontal|right"
+        android:textColor="@android:color/black"
+        android:text="forecast"
+        android:textStyle="bold"
+        android:layout_weight="0.5"/>
+
+    <!-- <TextView
+         android:id="@+id/weatherItemTemp"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:layout_margin="8dp"
+         android:text="temperatures" />-->
+
+</LinearLayout>
