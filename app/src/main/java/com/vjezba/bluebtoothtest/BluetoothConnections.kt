@@ -1,22 +1,29 @@
-import android.app.ProgressDialog
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothServerSocket
 import android.bluetooth.BluetoothSocket
-
-import android.content.Context;
-import android.util.Log;
+import android.content.Context
+import android.os.Handler
+import android.os.Message
+import android.util.Log
 import com.vjezba.bluebtoothtest.ChatActivity
+import com.vjezba.bluebtoothtest.ChatsActivity
 import com.vjezba.bluebtoothtest.DisableUserActionsDialog
+import java.io.IOException
+import java.io.InputStream
+import java.io.OutputStream
+import java.nio.charset.Charset
+import java.util.*
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.charset.Charset;
-import java.util.UUID;
 
+class BluetoothConnectionService(context: Context, val handler: Handler) {
 
-class BluetoothConnectionService(context: Context) {
+    val STATE_LISTENING = 1
+    val STATE_CONNECTING = 2
+    val STATE_CONNECTED = 3
+    val STATE_CONNECTION_FAILED = 4
+    val STATE_MESSAGE_RECEIVED = 5
+
     private val mBluetoothAdapter: BluetoothAdapter
     var mContext: Context
     private var mInsecureAcceptThread: AcceptThread? = null
@@ -28,6 +35,7 @@ class BluetoothConnectionService(context: Context) {
 
     var inputString: String = ""
     var chatActivity: ChatActivity? = null
+
     /**
      * This thread runs while listening for incoming connections. It behaves
      * like a server-side client. It runs until a connection is accepted
@@ -37,40 +45,64 @@ class BluetoothConnectionService(context: Context) {
         // The local server socket
         private val mmServerSocket: BluetoothServerSocket?
         override fun run() {
+
             Log.d(TAG, "run: AcceptThread Running.")
             var socket: BluetoothSocket? = null
-            try {
-                // This is a blocking call and will only return on a
-                // successful connection or an exception
-                Log.d(
-                    TAG,
-                    "run: RFCOM server socket start....."
-                )
-                socket = mmServerSocket!!.accept()
-                Log.d(
-                    TAG,
-                    "run: RFCOM server socket accepted connection."
-                )
-            } catch (e: IOException) {
-                Log.e(
-                    TAG,
-                    "AcceptThread: IOException: " + e.message
-                )
-            }
+            while (socket == null) {
+                try {
 
-            //talk about this is in the 3rd
-            socket?.let { connected(it, mmDevice) }
-            Log.i(TAG, "END mAcceptThread ")
+                    val message = Message.obtain()
+                    message.what = STATE_CONNECTING
+                    handler.sendMessage(message)
+
+                    // This is a blocking call and will only return on a
+                    // successful connection or an exception
+                    Log.d(
+                            TAG,
+                            "run: RFCOM server socket start....."
+                    )
+                    socket = mmServerSocket!!.accept()
+                    Log.d(
+                            TAG,
+                            "run: RFCOM server socket accepted connection."
+                    )
+
+                } catch (e: IOException) {
+                    Log.e(
+                            TAG,
+                            "AcceptThread: IOException: " + e.message
+                    )
+                    mmServerSocket!!.close()
+                    val message = Message.obtain()
+                    message.what = STATE_CONNECTION_FAILED
+                    handler.sendMessage(message)
+                }
+
+                if( socket != null ) {
+                    val message = Message.obtain()
+                    message.what = STATE_CONNECTED
+                    handler.sendMessage(message)
+
+                    //talk about this is in the 3rd
+                    socket?.let { connected(it, mmDevice) }
+                    Log.i(TAG, "END mAcceptThread ")
+                    break
+                }
+
+            }
         }
 
         fun cancel() {
             Log.d(TAG, "cancel: Canceling AcceptThread.")
             try {
                 mmServerSocket!!.close()
+                val message = Message.obtain()
+                message.what = STATE_CONNECTION_FAILED
+                handler.sendMessage(message)
             } catch (e: IOException) {
                 Log.e(
-                    TAG,
-                    "cancel: Close of AcceptThread ServerSocket failed. " + e.message
+                        TAG,
+                        "cancel: Close of AcceptThread ServerSocket failed. " + e.message
                 )
             }
         }
@@ -81,17 +113,17 @@ class BluetoothConnectionService(context: Context) {
             // Create a new listening server socket
             try {
                 tmp = mBluetoothAdapter.listenUsingInsecureRfcommWithServiceRecord(
-                    appName,
-                    MY_UUID_INSECURE
+                        appName,
+                        MY_UUID_INSECURE
                 )
                 Log.d(
-                    TAG,
-                    "AcceptThread: Setting up Server using: $MY_UUID_INSECURE"
+                        TAG,
+                        "AcceptThread: Setting up Server using: $MY_UUID_INSECURE"
                 )
             } catch (e: IOException) {
                 Log.e(
-                    TAG,
-                    "AcceptThread: IOException: " + e.message
+                        TAG,
+                        "AcceptThread: IOException: " + e.message
                 )
             }
             mmServerSocket = tmp
@@ -113,15 +145,15 @@ class BluetoothConnectionService(context: Context) {
             // given BluetoothDevice
             try {
                 Log.d(
-                    TAG,
-                    "ConnectThread: Trying to create InsecureRfcommSocket using UUID: "
-                            + MY_UUID_INSECURE
+                        TAG,
+                        "ConnectThread: Trying to create InsecureRfcommSocket using UUID: "
+                                + MY_UUID_INSECURE
                 )
                 tmp = mmDevice!!.createRfcommSocketToServiceRecord(deviceUUID)
             } catch (e: IOException) {
                 Log.e(
-                    TAG,
-                    "ConnectThread: Could not create InsecureRfcommSocket " + e.message
+                        TAG,
+                        "ConnectThread: Could not create InsecureRfcommSocket " + e.message
                 )
             }
             mmSocket = tmp
@@ -134,21 +166,28 @@ class BluetoothConnectionService(context: Context) {
                 // This is a blocking call and will only return on a
                 // successful connection or an exception
                 mmSocket!!.connect()
+                val message = Message.obtain()
+                message.what = STATE_CONNECTED
+                handler.sendMessage(message)
+
                 Log.d(TAG, "run: ConnectThread connected.")
             } catch (e: IOException) {
                 // Close the socket
                 try {
                     mmSocket!!.close()
+                    val message = Message.obtain()
+                    message.what = STATE_CONNECTION_FAILED
+                    handler.sendMessage(message)
                     Log.d(TAG, "run: Closed Socket.")
                 } catch (e1: IOException) {
                     Log.e(
-                        TAG,
-                        "mConnectThread: run: Unable to close connection in socket " + e1.message
+                            TAG,
+                            "mConnectThread: run: Unable to close connection in socket " + e1.message
                     )
                 }
                 Log.d(
-                    TAG,
-                    "run: ConnectThread: Could not connect to UUID: $MY_UUID_INSECURE"
+                        TAG,
+                        "run: ConnectThread: Could not connect to UUID: $MY_UUID_INSECURE"
                 )
             }
 
@@ -160,10 +199,13 @@ class BluetoothConnectionService(context: Context) {
             try {
                 Log.d(TAG, "cancel: Closing Client Socket.")
                 mmSocket!!.close()
+                val message = Message.obtain()
+                message.what = STATE_CONNECTION_FAILED
+                handler.sendMessage(message)
             } catch (e: IOException) {
                 Log.e(
-                    TAG,
-                    "cancel: close() of mmSocket in Connectthread failed. " + e.message
+                        TAG,
+                        "cancel: close() of mmSocket in Connectthread failed. " + e.message
                 )
             }
         }
@@ -233,16 +275,19 @@ class BluetoothConnectionService(context: Context) {
 
                     val incomingMessage = String(buffer, 0, bytes)
                     inputString = incomingMessage
-                    chatActivity?.displayText(inputString)
+
+                    //chatActivity?.displayText(inputString)
+
+                    handler.obtainMessage(STATE_MESSAGE_RECEIVED, bytes, -1, buffer).sendToTarget()
                     inputString = ""
                     Log.d(
-                        TAG,
-                        "InputStream: $incomingMessage"
+                            TAG,
+                            "InputStream: $incomingMessage"
                     )
                 } catch (e: IOException) {
                     Log.e(
-                        TAG,
-                        "write: Error reading Input Stream. " + e.message
+                            TAG,
+                            "write: Error reading Input Stream. " + e.message
                     )
                     break
                 }
@@ -253,15 +298,15 @@ class BluetoothConnectionService(context: Context) {
         fun write(bytes: ByteArray?) {
             val text = String(bytes!!, Charset.defaultCharset())
             Log.d(
-                TAG,
-                "write: Writing to outputstream: $text"
+                    TAG,
+                    "write: Writing to outputstream: $text"
             )
             try {
                 mmOutStream?.write(bytes)
             } catch (e: IOException) {
                 Log.e(
-                    TAG,
-                    "write: Error writing to output stream. " + e.message
+                        TAG,
+                        "write: Error writing to output stream. " + e.message
                 )
             }
         }

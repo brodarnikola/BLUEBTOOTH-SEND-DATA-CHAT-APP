@@ -7,13 +7,14 @@
     android:layout_height="match_parent"
     android:padding="16dp">
 
+
     <Button
-        android:text="ON/OFF"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
-        android:id="@+id/btnONOFF"/>
+        android:layout_marginRight="20dp"
+        android:id="@+id/btnFindUnpairedDevices"
+        android:text="Discover"
+        android:onClick="btnDiscover"/>
 
     <Button
         android:text="Enable Discoverable"
@@ -22,29 +23,38 @@
         android:id="@+id/btnDiscoverable_on_off"
         android:onClick="btnEnableDisable_Discoverable"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"/>
+        android:layout_toRightOf="@+id/btnFindUnpairedDevices"/>
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/btnFindUnpairedDevices"
-        android:text="Discover"
-        android:onClick="btnDiscover"/>
-
-    <ListView
-        android:layout_marginTop="15dp"
-        android:layout_below="@+id/btnStartConnection"
-        android:layout_width="match_parent"
-        android:layout_height="150dp"
-        android:id="@+id/lvNewDevices"/>
-
-    <Button
-        android:layout_marginTop="10dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_marginRight="20dp"
         android:layout_below="@+id/btnFindUnpairedDevices"
         android:id="@+id/btnStartConnection"
         android:text="Start Connection"/>
+
+    <Button
+        android:text="ON/OFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/btnFindUnpairedDevices"
+        android:layout_toRightOf="@+id/btnStartConnection"
+        android:id="@+id/btnONOFF"/>
+
+    <TextView
+        android:id="@+id/tvBluetoothStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        android:layout_below="@+id/btnStartConnection"
+        android:layout_alignParentLeft="true" />
+
+    <ListView
+        android:layout_marginTop="5dp"
+        android:layout_below="@+id/tvBluetoothStatus"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:id="@+id/lvNewDevices"/>
 
     <EditText
         android:layout_width="250dp"
