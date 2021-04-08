@@ -1,4 +1,4 @@
-package com.vjezba.bluebtoothtest.javabluebtoothexample
+package com.vjezba.bluebtoothtest.bluebtoothexample
 
 import android.view.LayoutInflater
 import android.view.View

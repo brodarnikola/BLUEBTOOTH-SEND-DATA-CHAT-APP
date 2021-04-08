@@ -21,8 +21,8 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.vjezba.bluebtoothtest.javabluebtoothexample.SenderReceiverBLEDevice;
-import com.vjezba.bluebtoothtest.javabluebtoothexample.UserMessagesListAdapter;
+import com.vjezba.bluebtoothtest.bluebtoothexample.SenderReceiverBLEDevice;
+import com.vjezba.bluebtoothtest.bluebtoothexample.UserMessagesListAdapter;
 
 import java.io.IOException;
 import java.io.InputStream;

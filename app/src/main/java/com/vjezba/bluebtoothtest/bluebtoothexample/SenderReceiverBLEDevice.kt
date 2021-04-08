@@ -1,4 +1,4 @@
-package com.vjezba.bluebtoothtest.javabluebtoothexample
+package com.vjezba.bluebtoothtest.bluebtoothexample
 
 class SenderReceiverBLEDevice {
 

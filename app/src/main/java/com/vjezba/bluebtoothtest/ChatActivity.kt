@@ -14,8 +14,8 @@ import android.widget.AdapterView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.vjezba.bluebtoothtest.javabluebtoothexample.SenderReceiverBLEDevice
-import com.vjezba.bluebtoothtest.javabluebtoothexample.UserMessagesListAdapter
+import com.vjezba.bluebtoothtest.bluebtoothexample.SenderReceiverBLEDevice
+import com.vjezba.bluebtoothtest.bluebtoothexample.UserMessagesListAdapter
 import kotlinx.android.synthetic.main.activity_chat2.*
 import java.nio.charset.Charset
 import java.util.*
@@ -262,7 +262,7 @@ class ChatActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
 //        disableUserActionDialog?.show(this.supportFragmentManager, ""
 //        )
 
-        mBluetoothConnection!!.startClient(device, uuid, this@ChatActivity, disableUserActionDialog)
+        mBluetoothConnection!!.startClient(device, uuid,  disableUserActionDialog)
     }
 
 
@@ -353,7 +353,7 @@ class ChatActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
                 STATE_LISTENING -> tvBluetoothStatus.setText("Listening")
                 STATE_CONNECTING -> {
                     tvBluetoothStatus.setText("Connecting")
-                    startConnection()
+                    //startConnection()
                 }
                 STATE_CONNECTED -> tvBluetoothStatus.setText("Connected")
                 STATE_CONNECTION_FAILED -> tvBluetoothStatus.setText("Connection Failed")
@@ -380,11 +380,9 @@ class ChatActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
     ) {
         //first cancel discovery because its very memory intensive.
         mBluetoothAdapter!!.cancelDiscovery()
-        Log.d(TAG, "onItemClick: You Clicked on a device.")
         val deviceName = mBTDevices[i]!!.name
         val deviceAddress = mBTDevices[i]!!.address
-        Log.d(TAG, "onItemClick: deviceName = $deviceName")
-        Log.d(TAG, "onItemClick: deviceAddress = $deviceAddress")
+        Log.d(TAG, "onItemClick: You Clicked on a device. deviceName = $deviceName, deviceAddress = $deviceAddress")
 
         //create the bond.
         //NOTE: Requires API 17+? I think this is JellyBean
@@ -392,7 +390,7 @@ class ChatActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
             Log.d(TAG, "Trying to pair with $deviceName")
             mBTDevices[i]!!.createBond()
             mBTDevice = mBTDevices[i]
-            mBluetoothConnection = BluetoothConnectionService(this@ChatActivity.baseContext, handler, supportFragmentManager)
+            mBluetoothConnection = BluetoothConnectionService(this@ChatActivity.baseContext, handler,  supportFragmentManager, this@ChatActivity)
         }
         mDeviceListAdapter?.updatePositionInDeviceListAdapter(i)
     }

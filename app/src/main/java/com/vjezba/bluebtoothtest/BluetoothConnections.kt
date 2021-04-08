@@ -9,7 +9,6 @@ import android.util.Log
 import androidx.fragment.app.FragmentManager
 import com.vjezba.bluebtoothtest.ChatActivity
 import com.vjezba.bluebtoothtest.DisableUserActionsDialog
-import com.vjezba.bluebtoothtest.MainActivity
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
@@ -17,9 +16,8 @@ import java.nio.charset.Charset
 import java.util.*
 
 
-class BluetoothConnectionService(context: Context, val handler: Handler, val supportFragmentManager: FragmentManager) {
+class BluetoothConnectionService(context: Context, val handler: Handler, val supportFragmentManager: FragmentManager, mChatActivity: ChatActivity) {
 
-    val STATE_LISTENING = 1
     val STATE_CONNECTING = 2
     val STATE_CONNECTED = 3
     val STATE_CONNECTION_FAILED = 4
@@ -47,8 +45,20 @@ class BluetoothConnectionService(context: Context, val handler: Handler, val sup
     init {
         mContext = context
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
+        chatActivity = mChatActivity
         start()
     }
+
+    private var currentState = 0
+
+    @Synchronized
+    fun setState(state: Int) {
+        val message = Message.obtain()
+        message.what = state
+        handler.sendMessage(message)
+        currentState = state
+    }
+
     /**
      * This thread runs while listening for incoming connections. It behaves
      * like a server-side client. It runs until a connection is accepted
@@ -64,9 +74,7 @@ class BluetoothConnectionService(context: Context, val handler: Handler, val sup
             while (socket == null) {
                 try {
 
-                    val message = Message.obtain()
-                    message.what = STATE_CONNECTING
-                    handler.sendMessage(message)
+                    setState(STATE_CONNECTING)
 
                     // This is a blocking call and will only return on a
                     // successful connection or an exception
@@ -86,20 +94,28 @@ class BluetoothConnectionService(context: Context, val handler: Handler, val sup
                             "AcceptThread: IOException: " + e.message
                     )
                     mmServerSocket!!.close()
-                    val message = Message.obtain()
-                    message.what = STATE_CONNECTION_FAILED
-                    handler.sendMessage(message)
+                    setState(STATE_CONNECTION_FAILED)
                 }
 
                 if( socket != null ) {
+
+                        when (currentState) {
+                            STATE_CONNECTING -> connected(socket, mmDevice)
+                            STATE_CONNECTED -> try {
+                                mmServerSocket?.close()
+                            } catch (e: IOException) {
+                                Log.e("Accept->CloseSocket", e.toString())
+                            }
+                        }
 
 //                    val message = Message.obtain()
 //                    message.what = STATE_CONNECTED
 //                    handler.sendMessage(message)
 
                     //talk about this is in the 3rd
-                    connected(socket, mmDevice)
-                    mmServerSocket?.close()
+
+                    //connected(socket, mmDevice)
+                    //mmServerSocket?.close()
                     Log.i(TAG, "END mAcceptThread ")
                     break
                 }
@@ -111,9 +127,7 @@ class BluetoothConnectionService(context: Context, val handler: Handler, val sup
             Log.d(TAG, "cancel: Canceling AcceptThread.")
             try {
                 mmServerSocket!!.close()
-                val message = Message.obtain()
-                message.what = STATE_CONNECTION_FAILED
-                handler.sendMessage(message)
+                setState(STATE_CONNECTION_FAILED)
             } catch (e: IOException) {
                 Log.e(
                         TAG,
@@ -191,9 +205,7 @@ class BluetoothConnectionService(context: Context, val handler: Handler, val sup
                 // Close the socket
                 try {
                     mmSocket!!.close()
-                    val message = Message.obtain()
-                    message.what = STATE_CONNECTION_FAILED
-                    handler.sendMessage(message)
+                    setState(STATE_CONNECTION_FAILED)
                     Log.d(TAG, "run: Closed Socket.")
                 } catch (e1: IOException) {
                     Log.e(
@@ -215,9 +227,7 @@ class BluetoothConnectionService(context: Context, val handler: Handler, val sup
             try {
                 Log.d(TAG, "cancel: Closing Client Socket.")
                 mmSocket!!.close()
-                val message = Message.obtain()
-                message.what = STATE_CONNECTION_FAILED
-                handler.sendMessage(message)
+                setState(STATE_CONNECTION_FAILED)
             } catch (e: IOException) {
                 Log.e(
                         TAG,
@@ -256,10 +266,9 @@ class BluetoothConnectionService(context: Context, val handler: Handler, val sup
      * AcceptThread starts and sits waiting for a connection.
      * Then ConnectThread starts and attempts to make a connection with the other devices AcceptThread.
      */
-    fun startClient(device: BluetoothDevice?, uuid: UUID?, mChatActivity: ChatActivity, mDisableUserActionDialog: DisableUserActionsDialog?) {
+    fun startClient(device: BluetoothDevice?, uuid: UUID?, mDisableUserActionDialog: DisableUserActionsDialog?) {
         Log.d(TAG, "startClient: Started.")
 
-        chatActivity = mChatActivity
         disableUserActionDialog = mDisableUserActionDialog
         disableUserActionDialog?.show(supportFragmentManager, "")
         //initprogress dialog
@@ -374,6 +383,8 @@ class BluetoothConnectionService(context: Context, val handler: Handler, val sup
         // Start the thread to manage the connection and perform transmissions
         mConnectedThread = ConnectedThread(mmSocket)
         mConnectedThread!!.start()
+
+        setState(STATE_CONNECTED)
     }
 
     /**
