@@ -1,4 +1,4 @@
-package com.vjezba.bluebtoothtest
+package com.vjezba.bluebtoothtest.ui.dialog
 
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import androidx.fragment.app.DialogFragment
+import com.vjezba.bluebtoothtest.R
 import kotlinx.android.synthetic.main.dialog_disable_user_actions.*
 
 class DisableUserActionsDialog : DialogFragment() {

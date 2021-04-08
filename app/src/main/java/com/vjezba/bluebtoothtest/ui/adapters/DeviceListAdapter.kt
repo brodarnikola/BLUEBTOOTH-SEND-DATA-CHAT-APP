@@ -1,4 +1,4 @@
-package com.vjezba.bluebtoothtest
+package com.vjezba.bluebtoothtest.ui.adapters
 
 import android.bluetooth.BluetoothDevice
 import android.content.Context
@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import com.vjezba.bluebtoothtest.R
 
 
 class DeviceListAdapter(

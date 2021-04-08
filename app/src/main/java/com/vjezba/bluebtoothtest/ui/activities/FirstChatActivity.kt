@@ -1,4 +1,4 @@
-package com.vjezba.bluebtoothtest
+package com.vjezba.bluebtoothtest.ui.activities
 
 import BluetoothConnectionService
 import android.bluetooth.BluetoothAdapter
@@ -14,9 +14,12 @@ import android.widget.AdapterView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.vjezba.bluebtoothtest.ui.adapters.DeviceListAdapter
+import com.vjezba.bluebtoothtest.ui.dialog.DisableUserActionsDialog
+import com.vjezba.bluebtoothtest.R
 import com.vjezba.bluebtoothtest.bluebtoothexample.SenderReceiverBLEDevice
 import com.vjezba.bluebtoothtest.bluebtoothexample.UserMessagesListAdapter
-import kotlinx.android.synthetic.main.activity_chat2.*
+import kotlinx.android.synthetic.main.activity_first_chat.*
 import java.nio.charset.Charset
 import java.util.*
 import kotlin.collections.ArrayList

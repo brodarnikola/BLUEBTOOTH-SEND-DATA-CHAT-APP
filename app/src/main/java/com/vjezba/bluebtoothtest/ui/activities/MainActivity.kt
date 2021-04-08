@@ -1,9 +1,10 @@
-package com.vjezba.bluebtoothtest
+package com.vjezba.bluebtoothtest.ui.activities
 
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import com.vjezba.bluebtoothtest.R
 import kotlinx.android.synthetic.main.activity_main.*
 
 
@@ -27,7 +28,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         btnSecondExample.setOnClickListener {
-            val intent = Intent(this, FirstChatActivity::class.java)
+            val intent = Intent(this, SecondChatActivity::class.java)
             startActivity(intent)
         }
     }

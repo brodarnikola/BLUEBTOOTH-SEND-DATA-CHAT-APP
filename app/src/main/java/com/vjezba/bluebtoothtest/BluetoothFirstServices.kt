@@ -7,8 +7,8 @@ import android.os.Handler
 import android.os.Message
 import android.util.Log
 import androidx.fragment.app.FragmentManager
-import com.vjezba.bluebtoothtest.FirstChatActivity
-import com.vjezba.bluebtoothtest.DisableUserActionsDialog
+import com.vjezba.bluebtoothtest.ui.activities.FirstChatActivity
+import com.vjezba.bluebtoothtest.ui.dialog.DisableUserActionsDialog
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
