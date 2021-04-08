@@ -7,7 +7,7 @@ import android.os.Handler
 import android.os.Message
 import android.util.Log
 import androidx.fragment.app.FragmentManager
-import com.vjezba.bluebtoothtest.ChatActivity
+import com.vjezba.bluebtoothtest.FirstChatActivity
 import com.vjezba.bluebtoothtest.DisableUserActionsDialog
 import java.io.IOException
 import java.io.InputStream
@@ -16,7 +16,7 @@ import java.nio.charset.Charset
 import java.util.*
 
 
-class BluetoothConnectionService(context: Context, val handler: Handler, val supportFragmentManager: FragmentManager, mChatActivity: ChatActivity) {
+class BluetoothConnectionService(context: Context, val handler: Handler, val supportFragmentManager: FragmentManager, mFirstChatActivity: FirstChatActivity) {
 
     val STATE_CONNECTING = 2
     val STATE_CONNECTED = 3
@@ -33,7 +33,7 @@ class BluetoothConnectionService(context: Context, val handler: Handler, val sup
     private var mConnectedThread: ConnectedThread? = null
 
     var inputString: String = ""
-    var chatActivity: ChatActivity? = null
+    var firstChatActivity: FirstChatActivity? = null
 
 
     companion object {
@@ -45,7 +45,7 @@ class BluetoothConnectionService(context: Context, val handler: Handler, val sup
     init {
         mContext = context
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-        chatActivity = mChatActivity
+        firstChatActivity = mFirstChatActivity
         start()
     }
 
@@ -302,7 +302,7 @@ class BluetoothConnectionService(context: Context, val handler: Handler, val sup
                     val incomingMessage = String(buffer, 0, bytes)
                     inputString = incomingMessage
 
-                    //chatActivity?.displayText(inputString)
+                    //firstChatActivity?.displayText(inputString)
 
                     handler.obtainMessage(STATE_MESSAGE_RECEIVED, bytes, -1, buffer).sendToTarget()
                     inputString = ""
@@ -330,8 +330,8 @@ class BluetoothConnectionService(context: Context, val handler: Handler, val sup
             try {
                 mmOutStream?.write(bytes)
 
-                chatActivity?.displayOnMyPhoneMessage()
-                //( activity as ChatActivity ).displayOnMyPhoneMessage()
+                firstChatActivity?.displayOnMyPhoneMessage()
+                //( activity as FirstChatActivity ).displayOnMyPhoneMessage()
                 Log.d(
                         TAG,
                         "da li ce uci sim, pokrenuti updajte adaptera: "
@@ -360,8 +360,8 @@ class BluetoothConnectionService(context: Context, val handler: Handler, val sup
 
             //dismiss the progressdialog when connection is established
             try {
-                chatActivity?.hideProgressDialog(disableUserActionDialog)
-                //chatActivity?.hideProgressDialog(progressDialog)
+                firstChatActivity?.hideProgressDialog(disableUserActionDialog)
+                //firstChatActivity?.hideProgressDialog(progressDialog)
                 //progressDialog!!.dismiss()
             } catch (e: NullPointerException) {
                 e.printStackTrace()

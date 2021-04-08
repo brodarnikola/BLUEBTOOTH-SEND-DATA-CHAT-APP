@@ -22,12 +22,12 @@ class MainActivity : AppCompatActivity() {
         Log.d("Divide value", "Divided value is: ${divideDecimal}")
 
         btnFirstExample.setOnClickListener {
-            val intent = Intent(this, ChatActivity::class.java)
+            val intent = Intent(this, FirstChatActivity::class.java)
             startActivity(intent)
         }
 
         btnSecondExample.setOnClickListener {
-            val intent = Intent(this, ChatActivity::class.java)
+            val intent = Intent(this, FirstChatActivity::class.java)
             startActivity(intent)
         }
     }

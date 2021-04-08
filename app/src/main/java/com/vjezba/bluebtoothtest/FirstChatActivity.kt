@@ -22,7 +22,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 
-class ChatActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
+class FirstChatActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
 
     private val TAG = "MainActivity"
 
@@ -169,7 +169,7 @@ class ChatActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_chat2)
+        setContentView(R.layout.activity_first_chat)
 
         mBTDevices = ArrayList()
 
@@ -232,7 +232,7 @@ class ChatActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
                     "onReceive: " + inputString
             )
 //            chatListAdapter =
-//                    UserMessagesListAdapter(this@ChatActivity.baseContext, R.layout.chat_list_view, listOFChat)
+//                    UserMessagesListAdapter(this@FirstChatActivity.baseContext, R.layout.chat_list_view, listOFChat)
 //            lvNewChat?.setAdapter(chatListAdapter)
             chatListAdapter.updateUserMessages(senderReceiverBLEDevice)
         //}
@@ -361,7 +361,7 @@ class ChatActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
                     val readBuff = msg.obj as ByteArray
                     val tempMsg = String(readBuff, 0, msg.arg1)
                     displayText(tempMsg)
-                    Toast.makeText(this@ChatActivity, "Juhu dobili smo podatke: ${tempMsg}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@FirstChatActivity, "Juhu dobili smo podatke: ${tempMsg}", Toast.LENGTH_LONG).show()
 //                    msg_box.setText(tempMsg)
 //                    val senderReceiverBLEDevice = SenderReceiverBLEDevice()
 //                    senderReceiverBLEDevice.chatMessage = tempMsg
@@ -390,7 +390,7 @@ class ChatActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
             Log.d(TAG, "Trying to pair with $deviceName")
             mBTDevices[i]!!.createBond()
             mBTDevice = mBTDevices[i]
-            mBluetoothConnection = BluetoothConnectionService(this@ChatActivity.baseContext, handler,  supportFragmentManager, this@ChatActivity)
+            mBluetoothConnection = BluetoothConnectionService(this@FirstChatActivity.baseContext, handler,  supportFragmentManager, this@FirstChatActivity)
         }
         mDeviceListAdapter?.updatePositionInDeviceListAdapter(i)
     }
