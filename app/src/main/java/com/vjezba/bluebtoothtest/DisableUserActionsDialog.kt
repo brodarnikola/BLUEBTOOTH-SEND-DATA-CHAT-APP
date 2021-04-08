@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import androidx.fragment.app.DialogFragment
+import kotlinx.android.synthetic.main.dialog_disable_user_actions.*
 
 class DisableUserActionsDialog : DialogFragment() {
 
@@ -21,6 +22,14 @@ class DisableUserActionsDialog : DialogFragment() {
             dialog?.setCanceledOnTouchOutside(false)
         }
         return view
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        btnCancel.setOnClickListener {
+            dismiss()
+        }
     }
 
 }

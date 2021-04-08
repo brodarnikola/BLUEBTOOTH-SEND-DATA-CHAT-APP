@@ -10,7 +10,7 @@ import com.vjezba.bluebtoothtest.R
 class UserMessagesListAdapter(var listMessages: MutableList<SenderReceiverBLEDevice>) : RecyclerView.Adapter<UserMessagesListAdapter.UserMessageHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UserMessageHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.java_bluebtooth_chat_messages_lits, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.bluebtooth_chat_messages_lits, parent, false)
         return UserMessageHolder(view)
     }
 

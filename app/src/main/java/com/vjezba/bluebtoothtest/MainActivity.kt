@@ -32,7 +32,7 @@ class MainActivity : AppCompatActivity() {
         Toast.makeText(this, "Decimal is ${divideDecimal}", Toast.LENGTH_LONG).show()
 
         button5.setOnClickListener {
-            val intent = Intent(this, ChatsActivity::class.java)
+            val intent = Intent(this, ChatActivity::class.java)
             startActivity(intent)
             //finish()
         }

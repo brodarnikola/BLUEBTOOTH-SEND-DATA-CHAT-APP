@@ -6,9 +6,10 @@ import android.content.Context
 import android.os.Handler
 import android.os.Message
 import android.util.Log
+import androidx.fragment.app.FragmentManager
 import com.vjezba.bluebtoothtest.ChatActivity
-import com.vjezba.bluebtoothtest.ChatsActivity
 import com.vjezba.bluebtoothtest.DisableUserActionsDialog
+import com.vjezba.bluebtoothtest.MainActivity
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
@@ -16,7 +17,7 @@ import java.nio.charset.Charset
 import java.util.*
 
 
-class BluetoothConnectionService(context: Context, val handler: Handler) {
+class BluetoothConnectionService(context: Context, val handler: Handler, val supportFragmentManager: FragmentManager) {
 
     val STATE_LISTENING = 1
     val STATE_CONNECTING = 2
@@ -36,6 +37,18 @@ class BluetoothConnectionService(context: Context, val handler: Handler) {
     var inputString: String = ""
     var chatActivity: ChatActivity? = null
 
+
+    companion object {
+        private const val TAG = "BluetoothConnectionServ"
+        private const val appName = "MYAPP"
+        private val MY_UUID_INSECURE: UUID = UUID.fromString("8ce255c0-200a-11e0-ac64-0800200c9a66")
+    }
+
+    init {
+        mContext = context
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
+        start()
+    }
     /**
      * This thread runs while listening for incoming connections. It behaves
      * like a server-side client. It runs until a connection is accepted
@@ -79,12 +92,14 @@ class BluetoothConnectionService(context: Context, val handler: Handler) {
                 }
 
                 if( socket != null ) {
-                    val message = Message.obtain()
-                    message.what = STATE_CONNECTED
-                    handler.sendMessage(message)
+
+//                    val message = Message.obtain()
+//                    message.what = STATE_CONNECTED
+//                    handler.sendMessage(message)
 
                     //talk about this is in the 3rd
-                    socket?.let { connected(it, mmDevice) }
+                    connected(socket, mmDevice)
+                    mmServerSocket?.close()
                     Log.i(TAG, "END mAcceptThread ")
                     break
                 }
@@ -135,6 +150,7 @@ class BluetoothConnectionService(context: Context, val handler: Handler) {
      * with a device. It runs straight through; the connection either
      * succeeds or fails.
      */
+    // The local client socket
     private inner class ConnectThread(device: BluetoothDevice?, uuid: UUID?) : Thread() {
         private var mmSocket: BluetoothSocket? = null
         override fun run() {
@@ -245,6 +261,7 @@ class BluetoothConnectionService(context: Context, val handler: Handler) {
 
         chatActivity = mChatActivity
         disableUserActionDialog = mDisableUserActionDialog
+        disableUserActionDialog?.show(supportFragmentManager, "")
         //initprogress dialog
 //        mProgressDialog =  ProgressDialog.show(
 //            mContext, "Connecting Bluetooth"
@@ -303,6 +320,13 @@ class BluetoothConnectionService(context: Context, val handler: Handler) {
             )
             try {
                 mmOutStream?.write(bytes)
+
+                chatActivity?.displayOnMyPhoneMessage()
+                //( activity as ChatActivity ).displayOnMyPhoneMessage()
+                Log.d(
+                        TAG,
+                        "da li ce uci sim, pokrenuti updajte adaptera: "
+                )
             } catch (e: IOException) {
                 Log.e(
                         TAG,
@@ -368,15 +392,4 @@ class BluetoothConnectionService(context: Context, val handler: Handler) {
         mConnectedThread!!.write(out)
     }
 
-    companion object {
-        private const val TAG = "BluetoothConnectionServ"
-        private const val appName = "MYAPP"
-        private val MY_UUID_INSECURE: UUID = UUID.fromString("8ce255c0-200a-11e0-ac64-0800200c9a66")
-    }
-
-    init {
-        mContext = context
-        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-        start()
-    }
 }

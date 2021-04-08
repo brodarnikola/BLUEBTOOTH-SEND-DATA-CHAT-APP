@@ -13,10 +13,10 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.vjezba.bluebtoothtest.javabluebtoothexample.SenderReceiverBLEDevice
+import com.vjezba.bluebtoothtest.javabluebtoothexample.UserMessagesListAdapter
 import kotlinx.android.synthetic.main.activity_chat2.*
-import kotlinx.coroutines.launch
 import java.nio.charset.Charset
 import java.util.*
 import kotlin.collections.ArrayList
@@ -37,6 +37,10 @@ class ChatActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
     var mBTDevices: MutableList<BluetoothDevice?> = mutableListOf()
 
     var mDeviceListAdapter: DeviceListAdapter? = null
+
+    val listOFChat: MutableList<SenderReceiverBLEDevice> = mutableListOf()
+    //val chatListAdapter: UserMessagesListAdapter by lazy { UserMessagesListAdapter(listOFChat) }
+    val chatListAdapter: UserMessagesListAdapter = UserMessagesListAdapter(mutableListOf())
 
     val STATE_LISTENING = 1
     val STATE_CONNECTING = 2
@@ -192,28 +196,50 @@ class ChatActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
             val bytes: ByteArray = editText!!.text.toString().toByteArray(Charset.defaultCharset()) // .getBytes(Charset.defaultCharset()); //.byteInputStream(Charset.defaultCharset())
             mBluetoothConnection!!.write(bytes)
         }
-
     }
 
-    val listOFChat: MutableList<String> = mutableListOf()
-    var chatListAdapter: ChatListAdapter? = null
+    override fun onStart() {
+        super.onStart()
+
+        lvNewChat.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        lvNewChat.adapter = chatListAdapter
+    }
+
+
+    fun displayOnMyPhoneMessage() {
+        Log.d(
+                TAG,
+                "da li ce uci sim, u funkciju unutar activity"
+        )
+        val senderReceiverBLEDevice = SenderReceiverBLEDevice()
+        senderReceiverBLEDevice.chatMessage = editText.text.toString()
+        senderReceiverBLEDevice.receiverDevice = false
+        chatListAdapter.updateUserMessages(senderReceiverBLEDevice)
+    }
+
     fun displayText(inputString: String) {
 
-        lifecycleScope.launch {
-            listOFChat.add(inputString)
+        //displayOnMyPhoneMessage()
+
+        //lifecycleScope.launch(Dispatchers.Main) {
+            val senderReceiverBLEDevice = SenderReceiverBLEDevice()
+            senderReceiverBLEDevice.chatMessage = inputString
+            senderReceiverBLEDevice.receiverDevice = true
+            //listOFChat.add(senderReceiverBLEDevice)
 
             Log.d(
                     TAG,
                     "onReceive: " + inputString
             )
-            chatListAdapter =
-                    ChatListAdapter(this@ChatActivity.baseContext, R.layout.chat_list_view, listOFChat)
-            lvNewChat?.setAdapter(chatListAdapter)
-        }
+//            chatListAdapter =
+//                    UserMessagesListAdapter(this@ChatActivity.baseContext, R.layout.chat_list_view, listOFChat)
+//            lvNewChat?.setAdapter(chatListAdapter)
+            chatListAdapter.updateUserMessages(senderReceiverBLEDevice)
+        //}
     }
 
     fun hideProgressDialog(disableUserActionDialog: DisableUserActionsDialog?) {
-        //disableUserActionDialog?.dismiss()
+        disableUserActionDialog?.dismiss()
     }
 
     //create method for starting connection
@@ -236,7 +262,7 @@ class ChatActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
 //        disableUserActionDialog?.show(this.supportFragmentManager, ""
 //        )
 
-        mBluetoothConnection!!.startClient(device, uuid, this, disableUserActionDialog)
+        mBluetoothConnection!!.startClient(device, uuid, this@ChatActivity, disableUserActionDialog)
     }
 
 
@@ -325,7 +351,10 @@ class ChatActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
         override fun handleMessage(msg: Message) {
             when (msg.what) {
                 STATE_LISTENING -> tvBluetoothStatus.setText("Listening")
-                STATE_CONNECTING -> tvBluetoothStatus.setText("Connecting")
+                STATE_CONNECTING -> {
+                    tvBluetoothStatus.setText("Connecting")
+                    startConnection()
+                }
                 STATE_CONNECTED -> tvBluetoothStatus.setText("Connected")
                 STATE_CONNECTION_FAILED -> tvBluetoothStatus.setText("Connection Failed")
                 STATE_MESSAGE_RECEIVED -> {
@@ -363,7 +392,7 @@ class ChatActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
             Log.d(TAG, "Trying to pair with $deviceName")
             mBTDevices[i]!!.createBond()
             mBTDevice = mBTDevices[i]
-            mBluetoothConnection = BluetoothConnectionService(this@ChatActivity.baseContext, handler)
+            mBluetoothConnection = BluetoothConnectionService(this@ChatActivity.baseContext, handler, supportFragmentManager)
         }
         mDeviceListAdapter?.updatePositionInDeviceListAdapter(i)
     }
