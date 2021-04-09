@@ -18,7 +18,6 @@ class DisableUserActionsDialog : DialogFragment() {
 
         val view = inflater.inflate(R.layout.dialog_disable_user_actions, container, false)
         if (dialog != null && dialog?.window != null) {
-            dialog?.window?.setBackgroundDrawable( ColorDrawable(Color.TRANSPARENT))
             dialog?.window?.requestFeature(Window.FEATURE_NO_TITLE)
             dialog?.setCanceledOnTouchOutside(false)
         }

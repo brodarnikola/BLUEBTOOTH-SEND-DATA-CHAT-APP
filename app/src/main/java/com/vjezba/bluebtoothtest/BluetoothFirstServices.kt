@@ -71,17 +71,18 @@ class BluetoothConnectionService(context: Context, val handler: Handler, val sup
 
             Log.d(TAG, "run: AcceptThread Running.")
             var socket: BluetoothSocket? = null
-            while (socket == null) {
+            var shouldLoop = true
+            while (shouldLoop) {
                 try {
 
                     setState(STATE_CONNECTING)
 
-                    // This is a blocking call and will only return on a
-                    // successful connection or an exception
                     Log.d(
                             TAG,
                             "run: RFCOM server socket start....."
                     )
+                    // This is a blocking call and will only return on a
+                    // successful connection or an exception
                     socket = mmServerSocket!!.accept()
                     Log.d(
                             TAG,
@@ -93,31 +94,28 @@ class BluetoothConnectionService(context: Context, val handler: Handler, val sup
                             TAG,
                             "AcceptThread: IOException: " + e.message
                     )
+                    shouldLoop = false
                     mmServerSocket!!.close()
                     setState(STATE_CONNECTION_FAILED)
                 }
 
                 if( socket != null ) {
 
-                        when (currentState) {
-                            STATE_CONNECTING -> connected(socket, mmDevice)
-                            STATE_CONNECTED -> try {
-                                mmServerSocket?.close()
-                            } catch (e: IOException) {
-                                Log.e("Accept->CloseSocket", e.toString())
-                            }
+                    when (currentState) {
+                        STATE_CONNECTING -> {
+                            Log.d("ConnectingServerSocet", "Server socket is listening for client connection")
+                            connected(socket, mmDevice)
                         }
+                    }
 
-//                    val message = Message.obtain()
-//                    message.what = STATE_CONNECTED
-//                    handler.sendMessage(message)
-
-                    //talk about this is in the 3rd
-
-                    //connected(socket, mmDevice)
-                    //mmServerSocket?.close()
+                    try {
+                        Log.d("Accept->CloseSocket", "Everything is good it will now close serverSocket")
+                        mmServerSocket?.close()
+                    } catch (e: IOException) {
+                        Log.e("Accept->CloseSocket", e.toString())
+                    }
+                    shouldLoop = false
                     Log.i(TAG, "END mAcceptThread ")
-                    break
                 }
 
             }
@@ -171,8 +169,7 @@ class BluetoothConnectionService(context: Context, val handler: Handler, val sup
             var tmp: BluetoothSocket? = null
             Log.i(TAG, "RUN mConnectThread ")
 
-            // Get a BluetoothSocket for a connection with the
-            // given BluetoothDevice
+            // Get a BluetoothSocket for a connection with the given BluetoothDevice
             try {
                 Log.d(
                         TAG,
@@ -196,9 +193,6 @@ class BluetoothConnectionService(context: Context, val handler: Handler, val sup
                 // This is a blocking call and will only return on a
                 // successful connection or an exception
                 mmSocket!!.connect()
-                val message = Message.obtain()
-                message.what = STATE_CONNECTED
-                handler.sendMessage(message)
 
                 Log.d(TAG, "run: ConnectThread connected.")
             } catch (e: IOException) {
@@ -331,7 +325,6 @@ class BluetoothConnectionService(context: Context, val handler: Handler, val sup
                 mmOutStream?.write(bytes)
 
                 firstChatActivity?.displayOnMyPhoneMessage()
-                //( activity as FirstChatActivity ).displayOnMyPhoneMessage()
                 Log.d(
                         TAG,
                         "da li ce uci sim, pokrenuti updajte adaptera: "
@@ -367,8 +360,8 @@ class BluetoothConnectionService(context: Context, val handler: Handler, val sup
                 e.printStackTrace()
             }
             try {
-                tmpIn = mmSocket!!.inputStream
-                tmpOut = mmSocket.outputStream
+                tmpIn = mmSocket?.inputStream
+                tmpOut = mmSocket?.outputStream
             } catch (e: IOException) {
                 e.printStackTrace()
             }
@@ -394,9 +387,6 @@ class BluetoothConnectionService(context: Context, val handler: Handler, val sup
      * @see ConnectedThread.write
      */
     fun write(out: ByteArray?) {
-        // Create temporary object
-        var r: ConnectedThread
-
         // Synchronize a copy of the ConnectedThread
         Log.d(TAG, "write: Write Called.")
         //perform the write
