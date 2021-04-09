@@ -42,6 +42,7 @@ class FirstChatActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
     var mDeviceListAdapter: DeviceListAdapter? = null
 
     val listOFChat: MutableList<SenderReceiverBLEDevice> = mutableListOf()
+
     //val chatListAdapter: UserMessagesListAdapter by lazy { UserMessagesListAdapter(listOFChat) }
     val chatListAdapter: UserMessagesListAdapter = UserMessagesListAdapter(mutableListOf())
 
@@ -225,23 +226,23 @@ class FirstChatActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
         //displayOnMyPhoneMessage()
 
         //lifecycleScope.launch(Dispatchers.Main) {
-            val senderReceiverBLEDevice = SenderReceiverBLEDevice()
-            senderReceiverBLEDevice.chatMessage = inputString
-            senderReceiverBLEDevice.receiverDevice = true
-            //listOFChat.add(senderReceiverBLEDevice)
+        val senderReceiverBLEDevice = SenderReceiverBLEDevice()
+        senderReceiverBLEDevice.chatMessage = inputString
+        senderReceiverBLEDevice.receiverDevice = true
+        //listOFChat.add(senderReceiverBLEDevice)
 
-            Log.d(
-                    TAG,
-                    "onReceive: " + inputString
-            )
+        Log.d(
+                TAG,
+                "onReceive: " + inputString
+        )
 //            chatListAdapter =
 //                    UserMessagesListAdapter(this@FirstChatActivity.baseContext, R.layout.chat_list_view, listOFChat)
 //            lvNewChat?.setAdapter(chatListAdapter)
-            chatListAdapter.updateUserMessages(senderReceiverBLEDevice)
+        chatListAdapter.updateUserMessages(senderReceiverBLEDevice)
         //}
     }
 
-    fun hideProgressDialog(disableUserActionDialog: DisableUserActionsDialog?) {
+    fun hideProgressDialog() {
         disableUserActionDialog?.dismiss()
     }
 
@@ -261,11 +262,12 @@ class FirstChatActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
         Log.d(TAG, "startBTConnection: Initializing RFCOM Bluetooth Connection.")
 
         disableUserActionDialog = DisableUserActionsDialog()
+        disableUserActionDialog?.show(supportFragmentManager, "")
 //        disableUserActionDialog?.isCancelable = false
 //        disableUserActionDialog?.show(this.supportFragmentManager, ""
 //        )
 
-        mBluetoothConnection!!.startClient(device, uuid,  disableUserActionDialog)
+        mBluetoothConnection!!.startClient(device, uuid)
     }
 
 
@@ -393,7 +395,7 @@ class FirstChatActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
             Log.d(TAG, "Trying to pair with $deviceName")
             mBTDevices[i]!!.createBond()
             mBTDevice = mBTDevices[i]
-            mBluetoothConnection = BluetoothConnectionService(this@FirstChatActivity.baseContext, handler,  supportFragmentManager, this@FirstChatActivity)
+            mBluetoothConnection = BluetoothConnectionService(this@FirstChatActivity.baseContext, handler, this@FirstChatActivity)
         }
         mDeviceListAdapter?.updatePositionInDeviceListAdapter(i)
     }
