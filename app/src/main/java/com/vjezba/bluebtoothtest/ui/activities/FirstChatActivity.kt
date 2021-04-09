@@ -178,8 +178,6 @@ class FirstChatActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
         mBTDevices = ArrayList()
 
         //Broadcasts when bond state changes (ie:pairing)
-
-        //Broadcasts when bond state changes (ie:pairing)
         val filter = IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED)
         registerReceiver(mBroadcastReceiver4, filter)
 
@@ -197,7 +195,7 @@ class FirstChatActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
         }
 
         btnSend!!.setOnClickListener {
-            val bytes: ByteArray = editText!!.text.toString().toByteArray(Charset.defaultCharset()) // .getBytes(Charset.defaultCharset()); //.byteInputStream(Charset.defaultCharset())
+            val bytes: ByteArray = editText!!.text.toString().toByteArray(Charset.defaultCharset())
             mBluetoothConnection!!.write(bytes)
         }
     }
@@ -223,23 +221,15 @@ class FirstChatActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
 
     fun displayText(inputString: String) {
 
-        //displayOnMyPhoneMessage()
-
-        //lifecycleScope.launch(Dispatchers.Main) {
         val senderReceiverBLEDevice = SenderReceiverBLEDevice()
         senderReceiverBLEDevice.chatMessage = inputString
         senderReceiverBLEDevice.receiverDevice = true
-        //listOFChat.add(senderReceiverBLEDevice)
 
         Log.d(
                 TAG,
                 "onReceive: " + inputString
         )
-//            chatListAdapter =
-//                    UserMessagesListAdapter(this@FirstChatActivity.baseContext, R.layout.chat_list_view, listOFChat)
-//            lvNewChat?.setAdapter(chatListAdapter)
         chatListAdapter.updateUserMessages(senderReceiverBLEDevice)
-        //}
     }
 
     fun hideProgressDialog() {
@@ -263,10 +253,6 @@ class FirstChatActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
 
         disableUserActionDialog = DisableUserActionsDialog()
         disableUserActionDialog?.show(supportFragmentManager, "")
-//        disableUserActionDialog?.isCancelable = false
-//        disableUserActionDialog?.show(this.supportFragmentManager, ""
-//        )
-
         mBluetoothConnection!!.startClient(device, uuid)
     }
 
@@ -358,6 +344,9 @@ class FirstChatActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
                 STATE_LISTENING -> tvBluetoothStatus.setText("Listening")
                 STATE_CONNECTING -> {
                     tvBluetoothStatus.setText("Connecting")
+                    // If I want to setup a bluebtooth connection ( userA and userB or server, client ) , without a button click,
+                    // then I need to uncomment this method.. and this works
+                    // It is only hard then to change status from connecting to connected on userA or first mobile phone
                     //startConnection()
                 }
                 STATE_CONNECTED -> tvBluetoothStatus.setText("Connected")
@@ -367,11 +356,6 @@ class FirstChatActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
                     val tempMsg = String(readBuff, 0, msg.arg1)
                     displayText(tempMsg)
                     Toast.makeText(this@FirstChatActivity, "Juhu dobili smo podatke: ${tempMsg}", Toast.LENGTH_LONG).show()
-//                    msg_box.setText(tempMsg)
-//                    val senderReceiverBLEDevice = SenderReceiverBLEDevice()
-//                    senderReceiverBLEDevice.chatMessage = tempMsg
-//                    senderReceiverBLEDevice.receiverDevice = true
-//                    userMessagesListAdapter.updateUserMessages(senderReceiverBLEDevice)
                 }
             }
         }
