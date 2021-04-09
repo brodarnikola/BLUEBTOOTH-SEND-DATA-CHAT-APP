@@ -12,7 +12,8 @@ import com.vjezba.bluebtoothtest.ui.activities.SecondChatActivity
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
-import java.util.*
+import java.util.UUID
+
 
 class BluebtoothSecondServices(mContext: Context, mHandler: Handler) {
 
@@ -25,7 +26,7 @@ class BluebtoothSecondServices(mContext: Context, mHandler: Handler) {
 
     private val APP_UUID =
         UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a66")
-    private val APP_NAME = "BluetoothChatApp9"
+    private val APP_NAME = "BluetoothChatApp59"
 
     companion object { 
         val STATE_NONE = 0
@@ -37,7 +38,7 @@ class BluebtoothSecondServices(mContext: Context, mHandler: Handler) {
     private var currentState = 0
     
     init { 
-        this.context = mContext
+        context = mContext
         handler = mHandler
         currentState = STATE_NONE
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
@@ -112,7 +113,7 @@ class BluebtoothSecondServices(mContext: Context, mHandler: Handler) {
         connThread!!.write(buffer)
     }
 
-    inner class AcceptThread : Thread() {
+   private inner class AcceptThread : Thread() {
         private val serverSocket: BluetoothServerSocket
         override fun run() {
             var socket: BluetoothSocket? = null
@@ -204,7 +205,7 @@ class BluebtoothSecondServices(mContext: Context, mHandler: Handler) {
         }
     }
 
-    inner class ConnectedThread(private val socket: BluetoothSocket) : Thread() {
+    private inner class ConnectedThread(private val socket: BluetoothSocket) : Thread() {
         private val inputStream: InputStream?
         private val outputStream: OutputStream?
         override fun run() {

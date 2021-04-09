@@ -25,14 +25,13 @@ import com.vjezba.bluebtoothtest.BluebtoothSecondServices.Companion.STATE_CONNEC
 import com.vjezba.bluebtoothtest.BluebtoothSecondServices.Companion.STATE_LISTEN
 import com.vjezba.bluebtoothtest.BluebtoothSecondServices.Companion.STATE_NONE
 import com.vjezba.bluebtoothtest.R
-import kotlinx.android.synthetic.main.activity_first_chat.*
 import kotlinx.android.synthetic.main.activity_second_chat.*
 
 class SecondChatActivity : AppCompatActivity() {
 
     private var mContext: Context? = null
     private var bluetoothAdapter: BluetoothAdapter? = null
-    private var chatUtils: BluebtoothSecondServices? = null
+    private var bluebtoothSecondServices: BluebtoothSecondServices? = null
 
     private var adapterMainChat: ArrayAdapter<String>? = null
 
@@ -92,7 +91,7 @@ class SecondChatActivity : AppCompatActivity() {
 
         init()
         initBluetooth()
-        chatUtils = BluebtoothSecondServices(mContext!!, handler)
+        bluebtoothSecondServices = BluebtoothSecondServices(mContext!!, handler)
         
     }
 
@@ -103,7 +102,7 @@ class SecondChatActivity : AppCompatActivity() {
             val message = ed_enter_message.getText().toString()
             if (!message.isEmpty()) {
                 ed_enter_message.setText("")
-                chatUtils!!.write(message.toByteArray())
+                bluebtoothSecondServices!!.write(message.toByteArray())
             }
         })
     }
@@ -147,7 +146,7 @@ class SecondChatActivity : AppCompatActivity() {
         if (requestCode == SELECT_DEVICE && resultCode == RESULT_OK) {
             val address = data?.getStringExtra("deviceAddress")
             Log.d("Mac address", "Is this correct mac address: ${address}")
-            chatUtils!!.connect(bluetoothAdapter!!.getRemoteDevice(address))
+            bluebtoothSecondServices!!.connect(bluetoothAdapter!!.getRemoteDevice(address))
         }
         super.onActivityResult(requestCode, resultCode, data)
     }
@@ -182,8 +181,8 @@ class SecondChatActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        if (chatUtils != null) {
-            chatUtils!!.stop()
+        if (bluebtoothSecondServices != null) {
+            bluebtoothSecondServices!!.stop()
         }
     }
 
